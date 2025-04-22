@@ -1,10 +1,13 @@
 import sys
+
+
 import gi
 
 gi.require_version('Gst', '1.0')
 gi.require_version('GstRtspServer', '1.0')
 
-from gi.repository import Gst, GstRtspServer, GLib
+from gi.repository import Gst, GLib
+from gi.repository.Gst import Element
 
 
 
@@ -33,19 +36,44 @@ def create_pipeline():
     #     rtspclientsink protocols=tcp location=rtsp://mediamtx:8554/test
     # """
 
+    # pipeline_str = """
+    #     rtspsrc location=rtsp://mediamtx:8554/test_input !
+    #     application/x-rtp, media=video, encoding=H264 !
+    #     rtph264depay !
+    #     decodebin !
+    #     nvvideoconvert !
+    #     mirror mode=right !
+    #     nvvideoconvert !
+    #     nvv4l2h264enc bitrate=800000 !
+    #     rtspclientsink protocols=tcp location=rtsp://mediamtx:8554/test_output
+    # """
+
     pipeline_str = """
         rtspsrc location=rtsp://mediamtx:8554/test_input !
         application/x-rtp, media=video, encoding=H264 !
         rtph264depay !
         decodebin !
         nvvideoconvert !
-        mirror mode=right !
+        nvdsosd display-text=1 !
         nvvideoconvert !
         nvv4l2h264enc bitrate=800000 !
+        rtph264pay !
         rtspclientsink protocols=tcp location=rtsp://mediamtx:8554/test_output
     """
 
     return Gst.parse_launch(pipeline_str)
+
+# def create_pipeline_2():
+#
+#     Gst.init(None)
+#     pipeline = Gst.Pipeline()
+#
+#     if not pipeline:
+#         print('No pipeline!')
+#
+#     rtspsrc: Element = Gst.ElementFactory.make('rtspsrc')
+#     rtph264depay: Element = Gst.ElementFactory.make('rtph264depay')
+
 
 
 def main():
