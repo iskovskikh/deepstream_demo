@@ -22,7 +22,11 @@ services:
   testvideo:
     image: jrottenberg/ffmpeg:4.1-nvidia
     volumes:
+      - ./sample_videos:/sample_videos
       - ./test_video_entrypoint.sh:/test_video_entrypoint.sh
+    environment:
+      - FILE_NAME=/sample_videos/29949-378294531_large.mp4
+      - STREAM_NAME=test_input_0
     entrypoint: /bin/bash
     command: /test_video_entrypoint.sh
 
@@ -34,34 +38,35 @@ services:
               count: 1
               capabilities: [ gpu ]
 
-  deep-demo:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    container_name: deep-demo
-#    command: python3 -V
-#    command: gst-inspect-1.0 nvv4l2h264enc
-#    command: gst-inspect-1.0
-#    command: gst-launch-1.0 videotestsrc ! video/x-raw, width=1920, height=1080 !  rtspclientsink  location=rtsp://mediamtx:8554/test
-#    command: |
-#      gst-launch-1.0 videotestsrc pattern=ball \
-#      ! video/x-raw,width=3840,height=2160,framerate=30/1 \
-#      ! nvvideoconvert \
-#      ! nvv4l2h264enc bitrate=800000 \
-#      ! rtspclientsink protocols=tcp location=rtsp://mediamtx:8554/test
 
-    volumes:
-      - ./:/root/apps
-    depends_on:
-      - mediamtx
-
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [ gpu ]
+#  deep-demo:
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile
+#    container_name: deep-demo
+##    command: python3 -V
+##    command: gst-inspect-1.0 nvv4l2h264enc
+##    command: gst-inspect-1.0
+##    command: gst-launch-1.0 videotestsrc ! video/x-raw, width=1920, height=1080 !  rtspclientsink  location=rtsp://mediamtx:8554/test
+##    command: |
+##      gst-launch-1.0 videotestsrc pattern=ball \
+##      ! video/x-raw,width=3840,height=2160,framerate=30/1 \
+##      ! nvvideoconvert \
+##      ! nvv4l2h264enc bitrate=800000 \
+##      ! rtspclientsink protocols=tcp location=rtsp://mediamtx:8554/test
+#
+#    volumes:
+#      - ./:/root/apps
+#    depends_on:
+#      - mediamtx
+#
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities: [ gpu ]
 
 
 #ffmpeg -report -v verbose -re -f lavfi -i testsrc=size=720x404:rate=59.94 -f lavfi -i sine=frequency=400 -vcodec libx264 -pix_fmt yuv420p -acodec aac -ar 24000 -rtsp_transport tcp -f rtsp rtsp://localhost:8554/123
